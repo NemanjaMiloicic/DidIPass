@@ -6,12 +6,16 @@ from selenium.common import TimeoutException, ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from dotenv import load_dotenv
 from Const import DEFAULT_TIMEOUT
 from Const import LINK
 from Const import XPATHS
 from Const import FILE_PATH
 from Const import IMAGE_PATH
+from Const import REPORT_FILE
 
 def wait_for_elements_to_be_clickable(driver, xpath, timeout = DEFAULT_TIMEOUT):
     try:
@@ -26,7 +30,7 @@ def wait_and_click(driver, xpath, timeout = DEFAULT_TIMEOUT):
     try:
         element = wait_for_elements_to_be_clickable(driver, xpath, timeout)
         element.click()
-    except (ElementClickInterceptedException, ElementClickInterceptedException) as error:
+    except Exception as error:
         print("Error during click")
         print(f"Error: {error}")
 
@@ -98,23 +102,39 @@ def save_new_topic(title, link, file_path = FILE_PATH):
         print("Error during saving process")
         print(f"Error: {error}")
 
+def write_report(title, link, status, reports_file=REPORT_FILE):
+    reports_dir = os.path.dirname(reports_file)
+    if not os.path.exists(reports_dir):
+        os.makedirs(reports_dir)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    line = f"{timestamp} : {status} : {title} : {link}\n"
+
+    with open(reports_file, "a", encoding="utf-8") as file:
+        file.write(line)
+
 def notify(changes_happened, file_existed, title ,link):
     if changes_happened and file_existed:
-        print("Latest topic HAS changed! :)")
+        status = "Latest topic HAS changed! :)"
     elif not changes_happened and file_existed:
-        print("Latest topic HAS NOT changed! :(")
+        status = "Latest topic HAS NOT changed! :("
     else:
-        print("Saved latest topic: :|")
+        status = "Saved latest topic: :|"
+    write_report(title, link, status)
     print(f"Title: {title}")
     print(f"Link: {link}")
 
 
 def main():
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     try:
-        load_dotenv()
-        account_email = os.getenv("EMAIL")
-        account_password = os.getenv("PASSWORD")
+        account_email = os.environ["EMAIL"]
+        account_password = os.environ["PASSWORD"]
         driver.get(LINK)
         wait_and_act(driver, XPATHS.OPENID)
         wait_and_act(driver, XPATHS.EMAIL , account_email)

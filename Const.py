@@ -3,6 +3,7 @@ FILE_PATH = "latest_topic.txt"
 IMAGE_PATH = "latest_topic.png"
 DEFAULT_TIMEOUT = 10
 LINK = "https://cs.elfak.ni.ac.rs/nastava/mod/forum/view.php?id=12160"
+REPORT_FILE = "reports/report.txt"
 @dataclass
 class XPaths:
     OPENID = "//a[@title='OpenID Connect']"
