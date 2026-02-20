@@ -69,6 +69,7 @@ def highlight_element(driver, element, border="3px solid red"):
 def take_screenshot(driver, element, image_path = IMAGE_PATH):
     highlight_element(driver, element)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    driver.set_window_size(1920,1080)
     driver.execute_script("arguments[0].scrollIntoView();", element)
     driver.save_screenshot(f"{image_path}_{timestamp}.png")
 
