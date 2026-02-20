@@ -1,0 +1,30 @@
+name: Scraper Cron Job
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+  workflow_dispatch:        
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    env:
+      EMAIL: ${{ secrets.EMAIL }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run scraper
+        run: python CheckForChanges.py
+      - name: Commit reports
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add reports/report.txt
+          git commit -m "Update report from cron job" || echo "No changes to commit"
+          git push origin cron-job
