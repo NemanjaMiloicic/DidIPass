@@ -27,4 +27,4 @@ jobs:
           git config --local user.name "GitHub Actions"
           git add reports/report.txt
           git commit -m "Update report from cron job" || echo "No changes to commit"
-          git push origin main
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
