@@ -3,7 +3,7 @@ name: Scraper Cron Job
 on:
   schedule:
     - cron: "0 */4 * * *"
-  workflow_dispatch:        
+  workflow_dispatch:
 
 jobs:
   run-scraper:
@@ -19,6 +19,8 @@ jobs:
           python-version: 3.11
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Ensure reports folder exists
+        run: mkdir -p reports
       - name: Run scraper
         run: python CheckForChanges.py
       - name: Commit reports
